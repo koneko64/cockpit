@@ -149,6 +149,13 @@ function serviceRow(props) {
 }
 
 function portRow(props) {
+
+ function onRemovePort(event) {
+     props.zone.ports.forEach(p => props.onRemovePort(p));
+     console.warn(props.ports);
+     event.stopPropagation();
+}
+    
     const columns = [
         {
             title: <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>
@@ -165,6 +172,13 @@ function portRow(props) {
                     .map(p => p.port)
                     .join(", ")
         },
+        {
+            title: <DeleteDropdown items={[  { text: _("Delete"),
+                 danger: true,
+                 ariaLabel: cockpit.format(_("Remove service $0-additional-ports"),props.zone.id),
+                 handleClick: onRemovePort } ]}/>
+         }
+       
     ];
     return ({
         props: { key: props.zone.id + "-ports", 'data-row-id': props.zone.id + "-ports" },
@@ -214,7 +228,7 @@ function ZoneSection(props) {
                           emptyCaption={_("There are no active services in this zone")}
                           rows={
                               props.zone.services.map(s => {
-                                  if (s in firewall.services) {
+                                if (s in firewall.services) {
                                       return serviceRow({
                                           key: firewall.services[s].id,
                                           service: firewall.services[s],
@@ -229,6 +243,7 @@ function ZoneSection(props) {
                                   props.zone.ports.length > 0
                                       ? portRow({
                                           key: props.zone.id + "-ports",
+                                          onRemovePort: port => props.onRemovePort(props.zone.id, port),
                                           zone: props.zone,
                                           readonly: firewall.readonly
                                       })
@@ -957,6 +972,10 @@ export class Firewall extends React.Component {
         });
     }
 
+    onRemovePort(zone, port) {
+        firewall.removePort(zone, port);
+    }
+
     onRemoveZone(zone) {
         const Dialogs = this.context;
         let body;
@@ -1085,7 +1104,8 @@ export class Firewall extends React.Component {
                                                         readonly={this.state.firewall.readonly}
                                                         onRemoveZone={this.onRemoveZone}
                                                         onEditService={this.onEditService}
-                                                        onRemoveService={this.onRemoveService} />
+                                                        onRemoveService={this.onRemoveService}
+                                                        onRemovePort={this.onRemovePort} />
                             )
                         }
                     </Stack> }
