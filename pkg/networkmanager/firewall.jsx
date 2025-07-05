@@ -149,13 +149,12 @@ function serviceRow(props) {
 }
 
 function portRow(props) {
+    function onRemovePort(event) {
+        props.zone.ports.forEach(p => props.onRemovePort(p));
+        console.warn(props.ports);
+        event.stopPropagation();
+    }
 
- function onRemovePort(event) {
-     props.zone.ports.forEach(p => props.onRemovePort(p));
-     console.warn(props.ports);
-     event.stopPropagation();
-}
-    
     const columns = [
         {
             title: <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>
@@ -173,12 +172,14 @@ function portRow(props) {
                     .join(", ")
         },
         {
-            title: <DeleteDropdown items={[  { text: _("Delete"),
-                 danger: true,
-                 ariaLabel: cockpit.format(_("Remove service $0-additional-ports"),props.zone.id),
-                 handleClick: onRemovePort } ]}/>
-         }
-       
+            title: <DeleteDropdown items={[{
+                text: _("Delete"),
+                danger: true,
+                ariaLabel: cockpit.format(_("Remove service $0-additional-ports"), props.zone.id),
+                handleClick: onRemovePort
+            }]} />
+        }
+
     ];
     return ({
         props: { key: props.zone.id + "-ports", 'data-row-id': props.zone.id + "-ports" },
@@ -228,7 +229,7 @@ function ZoneSection(props) {
                           emptyCaption={_("There are no active services in this zone")}
                           rows={
                               props.zone.services.map(s => {
-                                if (s in firewall.services) {
+                                  if (s in firewall.services) {
                                       return serviceRow({
                                           key: firewall.services[s].id,
                                           service: firewall.services[s],
@@ -973,7 +974,7 @@ export class Firewall extends React.Component {
     }
 
     onRemovePort(zone, port, protocol) {
-       firewall.removePort(zone, port, protocol);
+        firewall.removePort(zone, port, protocol);
     }
 
     onRemoveZone(zone) {
