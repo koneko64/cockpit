@@ -221,7 +221,7 @@ function ZoneSection(props) {
         </CardHeader>
         {(props.zone.services.length > 0 || props.zone.ports.length > 0) &&
         <CardBody className="contains-list">
-            <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }, { title: "", props: { width: 10 } }]}
+            <ListingTable columns={[{ title: _("Service test"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }, { title: "", props: { width: 10 } }]}
                           id={props.zone.id}
                           aria-label={props.zone.id}
                           variant="compact"
@@ -243,7 +243,7 @@ function ZoneSection(props) {
                                   props.zone.ports.length > 0
                                       ? portRow({
                                           key: props.zone.id + "-ports",
-                                          onRemovePort: port => props.onRemovePort(props.zone.id, port),
+                                          onRemovePort: port => props.onRemovePort(props.zone.id, port.port, port.protocol),
                                           zone: props.zone,
                                           readonly: firewall.readonly
                                       })
@@ -972,8 +972,8 @@ export class Firewall extends React.Component {
         });
     }
 
-    onRemovePort(zone, port) {
-        firewall.removePort(zone, port);
+    onRemovePort(zone, port, protocol) {
+       firewall.removePort(zone, port, protocol);
     }
 
     onRemoveZone(zone) {
